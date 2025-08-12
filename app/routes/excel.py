@@ -13,7 +13,10 @@ router = APIRouter()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logger.debug(f"BASE_DIR: {BASE_DIR}")
-TEMPLATE_PATH = os.path.join(BASE_DIR, "temp.xlsx")
+# Original path - commented out for Docker compatibility
+# TEMPLATE_PATH = os.path.join(BASE_DIR, "temp.xlsx")
+# In Docker, the template is mounted at /app/temp.xlsx
+TEMPLATE_PATH = os.path.join(os.getcwd(), "temp.xlsx")
 # TEMPLATE_PATH = r"C:\Users\Acer\Desktop\Nata\Smartwood\apiGetDataToExcel\temp.xlsx"
 logger.debug(f"TEMPLATE_PATH: {os.path.abspath(TEMPLATE_PATH)}")
 
@@ -31,8 +34,11 @@ async def generate_excel(data: TemplateData):
             replace_placeholders_in_sheet(sheet, data.replacements or {})
 
         output_filename = f"output_{uuid.uuid4()}.xlsx"
-        output_path = os.path.join(BASE_DIR, "temp", output_filename)
-        os.makedirs(os.path.join(BASE_DIR, "temp"), exist_ok=True)
+        # Original path - commented out for Docker compatibility
+        # output_path = os.path.join(BASE_DIR, "temp", output_filename)
+        # os.makedirs(os.path.join(BASE_DIR, "temp"), exist_ok=True)
+        output_path = os.path.join(os.getcwd(), "temp", output_filename)
+        os.makedirs(os.path.join(os.getcwd(), "temp"), exist_ok=True)
         wb.save(output_path)
         
         logger.debug(f"File generated at: {output_path}")
@@ -60,12 +66,18 @@ async def generate_excel_2(data: dict):
             sheet = wb[sheet_name]
             replace_placeholders_in_sheet(sheet, flat_replacements)
 
-        os.makedirs(os.path.join(BASE_DIR, "temp"), exist_ok=True)
-        if not os.access(os.path.join(BASE_DIR, "temp"), os.W_OK):
+        # Original path - commented out for Docker compatibility
+        # os.makedirs(os.path.join(BASE_DIR, "temp"), exist_ok=True)
+        # if not os.access(os.path.join(BASE_DIR, "temp"), os.W_OK):
+        #     raise HTTPException(status_code=500, detail="No write permission for temp folder")
+        # output_filename = f"output_{uuid.uuid4()}.xlsx"
+        # output_path = os.path.join(BASE_DIR, "temp", output_filename)
+        os.makedirs(os.path.join(os.getcwd(), "temp"), exist_ok=True)
+        if not os.access(os.path.join(os.getcwd(), "temp"), os.W_OK):
             raise HTTPException(status_code=500, detail="No write permission for temp folder")
 
         output_filename = f"output_{uuid.uuid4()}.xlsx"
-        output_path = os.path.join(BASE_DIR, "temp", output_filename)
+        output_path = os.path.join(os.getcwd(), "temp", output_filename)
         wb.save(output_path)
 
         return FileResponse(
