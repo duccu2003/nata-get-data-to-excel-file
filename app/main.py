@@ -21,6 +21,8 @@ async def read_root():
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # Only use Windows event loop policy on Windows
+    if os.name == 'nt':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     uvicorn.run(app, host="0.0.0.0", port=8000)

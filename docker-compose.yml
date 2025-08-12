@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - '6060:8000'
+    volumes:
+      - ./temp.xlsx:/app/temp.xlsx
+    environment:
+      - PYTHONPATH=/app
+    command: python -c "import os; import uvicorn; from main import app; uvicorn.run(app, host='0.0.0.0', port=8000)"
