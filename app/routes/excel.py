@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from openpyxl import load_workbook
 from models.template_data import TemplateData
-from utils.excel_utils import replace_placeholders_in_sheet, update_dpl_sheet
+from utils.excel_utils import replace_placeholders_in_sheet, update_dpl_sheet, update_csht_sheet
 from utils.mapping import process_replacements
 
 logger = logging.getLogger(__name__)
@@ -29,15 +29,26 @@ async def generate_excel(data: dict):
 
         wb = load_workbook(TEMPLATE_PATH)
         flat_replacements = process_replacements(data)
-        dpl_data = data.get('replacements', {}).get('DPL')  # Extract DPL from replacements
+        
+        # Xử lý DPL sheet
+        dpl_data = data.get('replacements', {}).get('DPL')
         if dpl_data:
             if 'DPL' in wb.sheetnames:
                 update_dpl_sheet(wb['DPL'], dpl_data)
             else:
                 logger.warning("DPL sheet not found in template, skipping DPL data processing")
         
+        # Xử lý CSHT sheet
+        csht_data = data.get('replacements', {}).get('CSHT')
+        if csht_data:
+            if 'CSHT' in wb.sheetnames:
+                update_csht_sheet(wb['CSHT'], csht_data)
+            else:
+                logger.warning("CSHT sheet not found in template, skipping CSHT data processing")
+        
+        # Xử lý các sheet khác
         for sheet_name in wb.sheetnames:
-            if sheet_name != 'DPL':
+            if sheet_name not in ['DPL', 'CSHT']:
                 sheet = wb[sheet_name]
                 replace_placeholders_in_sheet(sheet, flat_replacements)
 
@@ -55,4 +66,3 @@ async def generate_excel(data: dict):
     except Exception as e:
         logger.error(f"Error generating Excel file: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error generating Excel file: {str(e)}")
-
