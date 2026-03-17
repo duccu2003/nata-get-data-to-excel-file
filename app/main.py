@@ -2,8 +2,14 @@ import os
 import logging
 import uvicorn
 from fastapi import FastAPI
-from middleware import setup_middleware
-from routes import invoice, excel
+
+try:
+    from app.middleware import setup_middleware
+    from app.routes import invoice, excel
+except ModuleNotFoundError:
+    # Fallback for legacy launch mode: `uvicorn main:app --app-dir app`
+    from middleware import setup_middleware
+    from routes import invoice, excel
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

@@ -4,9 +4,14 @@ import logging
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from openpyxl import load_workbook
-from models.template_data import TemplateData
-from utils.excel_utils import replace_placeholders_in_sheet, update_dpl_sheet, update_csht_sheet
-from utils.mapping import process_replacements
+
+try:
+    from app.utils.excel_utils import replace_placeholders_in_sheet, update_dpl_sheet, update_csht_sheet
+    from app.utils.mapping import process_replacements
+except ModuleNotFoundError:
+    # Fallback for legacy launch mode: `uvicorn main:app --app-dir app`
+    from utils.excel_utils import replace_placeholders_in_sheet, update_dpl_sheet, update_csht_sheet
+    from utils.mapping import process_replacements
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
