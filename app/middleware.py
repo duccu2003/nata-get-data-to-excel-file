@@ -5,15 +5,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 def setup_middleware(app):
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Cho phép mọi domain gửi request
-        allow_credentials=False,  # Phải False khi dùng allow_origins=["*"] (theo CORS spec)
-        allow_methods=["*"],
-        allow_headers=["*"],
-        expose_headers=["*"],
-    )
-
     @app.middleware("http")
     async def log_requests(request: Request, call_next):
         logger.debug(f"Request: {request.method} {request.url}")
@@ -22,3 +13,13 @@ def setup_middleware(app):
         if "Access-Control-Allow-Origin" in response.headers:
             logger.debug(f"Access-Control-Allow-Origin: {response.headers['Access-Control-Allow-Origin']}")
         return response
+
+    # CORS phải thêm SAU (chạy ngoài cùng) để xử lý OPTIONS preflight trước
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+    )
