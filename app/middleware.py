@@ -7,10 +7,11 @@ logger = logging.getLogger(__name__)
 def setup_middleware(app):
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
+        allow_origins=["*"],  # Cho phép mọi domain gửi request
+        allow_credentials=False,  # Phải False khi dùng allow_origins=["*"] (theo CORS spec)
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["*"],
     )
 
     @app.middleware("http")
